@@ -5,18 +5,21 @@ class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
   final bool isLoading;
   final Color? backgroundColor;
+  final Widget? icon;
 
   const CustomButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.isLoading = false,
     this.backgroundColor,
-  }) : super(key: key);
+    this.icon,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
+    return ElevatedButton.icon(
+      icon: isLoading ? null : icon,
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? Theme.of(context).primaryColor,
@@ -26,7 +29,7 @@ class CustomButton extends StatelessWidget {
         ),
         minimumSize: const Size(double.infinity, 50),
       ),
-      child: isLoading
+      label: isLoading
           ? const SizedBox(
               height: 20,
               width: 20,
