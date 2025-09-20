@@ -1,17 +1,19 @@
 import 'package:kyc/core/result.dart';
+import 'package:kyc/domain/value_objects/password.dart';
 
 import '../entities/auth.dart';
 import '../entities/user.dart';
 import '../repositories/login_repository.dart';
+import '../value_objects/email.dart';
 
-class LoginUseCase {
+class LoginUsecase {
   final LoginRepository repository;
 
-  LoginUseCase(this.repository);
+  LoginUsecase(this.repository);
 
   Future<Result<Auth>> execute({
-    required String email,
-    required String password,
+    required Email email,
+    required Password password,
   }) async {
     return await repository.login(email, password);
   }

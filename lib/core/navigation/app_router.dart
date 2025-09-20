@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:kyc/presentation/screens/id_type_screen.dart';
 
 import '../../id_extract_screen.dart';
-import '../../presentation/screens/identification_screen.dart';
+import '../../presentation/cubits/login_cubit.dart';
+import '../../presentation/screens/id_pictures_screen.dart';
 import '../../presentation/screens/kyc_detail_screen.dart';
 import '../../presentation/screens/kyc_management_screen.dart';
 import '../../presentation/screens/login_screen.dart';
@@ -17,14 +19,19 @@ final GoRouter router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/kyc-management',
+      path: '/kycs',
       builder: (context, state) {
         return const KycManagementScreen();
       },
       routes: [
-        GoRoute(path: 'add',
-          builder: (BuildContext context, GoRouterState state) {
-            return const IdentificationScreen();
+        GoRoute(path: 'add/take-picture',
+          builder: (context, state) {
+            return const IdPicturesScreen();
+          }
+        ),
+        GoRoute(path: 'add/id-type',
+          builder: (context, state) {
+            return const IdTypeScreen();
           }
         ),
       ]
@@ -37,6 +44,15 @@ final GoRouter router = GoRouter(
     ),
   ],
   redirect: (context, state) {
-    if (state.matchedLocation != '/login') return null;
+    final authState = context.read<LoginCubit>().state;
+
+    final goingToLogin = state.matchedLocation == '/login';
+
+    if (authState is! LoginSuccess) {
+      return '/login';
+    }
+
+    if (goingToLogin) return '/';
+    return null;
   },
 );

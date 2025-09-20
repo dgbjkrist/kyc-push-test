@@ -122,18 +122,17 @@ ExtractedInfo parseHeuristics(String text) {
   }
 
   // 2) try find lines that mention name keywords
-  for (final line in lines) {
-    final lower = line.toLowerCase();
-    if (lower.contains('surname') || lower.contains('family name') || lower.contains('nom') || lower.contains('name')) {
-      // split by : or - if present
-      final parts = line.split(RegExp(r'[:\-]'));
-      if (parts.length > 1) {
-        name = parts.sublist(1).join(':').trim();
-      } else {
-        // remove keyword
-        name = line.replaceAll(RegExp(r'(?i)surname|family name|nom|name'), '').trim();
-      }
-      if (name.isNotEmpty) break;
+  for (int i = 0; i < lines.length; i++) {
+    final line = lines[i].toLowerCase();
+
+    // Fullname
+    if (line.contains('nom')) {
+      // Nom sur ligne suivante
+      final lastName = (i + 1 < lines.length) ? lines[i + 1] : '';
+      // Chercher Prénom(s) aussi
+      final prenomIndex = lines.indexWhere((l) => l.toLowerCase().contains('prénom'));
+      final firstName = (prenomIndex != -1 && prenomIndex + 1 < lines.length) ? lines[prenomIndex + 1] : '';
+      name = '$lastName $firstName'.trim();
     }
   }
 

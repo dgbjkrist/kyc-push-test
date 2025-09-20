@@ -1,19 +1,21 @@
 import 'package:bloc/bloc.dart';
 import 'package:kyc/domain/usecases/login_usecase.dart';
+import 'package:kyc/domain/value_objects/password.dart';
 import 'package:meta/meta.dart';
 
 import '../../core/result.dart';
 import '../../domain/entities/auth.dart';
+import '../../domain/value_objects/email.dart';
 
 part 'login_state.dart';
 
 class LoginCubit extends Cubit<LoginState> {
-  final LoginUseCase _loginUseCase;
+  final LoginUsecase _loginUseCase;
   LoginCubit(this._loginUseCase) : super(LoginInitial());
 
   Future<void> login({
-    required String email,
-    required String password,
+    required Email email,
+    required Password password,
   }) async {
     emit(LoginLoading());
 

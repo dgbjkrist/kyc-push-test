@@ -1,31 +1,15 @@
 class User {
-  final String id;
-  final String email;
-  final String password;
+  final String? id;
+  final String? tenantId;
+  final String? name;
+  final String? email;
+  final String? photo;
 
   User({
-    required this.id,
-    required this.email,
-    required this.password,
+    this.id,
+    this.email,
+    this.tenantId,
+    this.name,
+    this.photo,
   });
-
-  factory User.empty() {
-    return User(
-      id: '',
-      email: '',
-      password: '',
-    );
-  }
-
-  User copyWith({
-    String? id,
-    String? email,
-    String? password,
-  }) {
-    return User(
-      id: id ?? this.id,
-      email: email ?? this.email,
-      password: password ?? this.password,
-    );
-  }
 }

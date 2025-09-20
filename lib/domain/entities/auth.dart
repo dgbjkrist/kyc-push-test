@@ -1,11 +1,10 @@
-class Auth {
-  final String token;
-  final String userId;
-  final String email;
+import 'user.dart';
 
-  const Auth({
-    required this.token,
-    required this.userId,
-    required this.email,
-  });
+class Auth {
+  final String? status;
+  final String? message;
+  final String? token;
+  final User? user;
+
+  Auth({this.status, this.message, this.token, this.user});
 }

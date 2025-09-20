@@ -18,9 +18,9 @@ Widget CustomTextField({
 }) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 10),
-    margin: EdgeInsets.symmetric(horizontal: 6),
+    margin: EdgeInsets.symmetric(horizontal: 6, vertical: 8),
     decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(10),
       boxShadow: [
         BoxShadow(
           offset: Offset(0, 0),
@@ -33,7 +33,7 @@ Widget CustomTextField({
     ),
     child: TextFormField(
       autofocus: focus,
-      inputFormatters: formatters != null ? formatters : [],
+      inputFormatters: formatters ?? [],
       controller: controller,
       readOnly: readonly,
       initialValue: initialValue,

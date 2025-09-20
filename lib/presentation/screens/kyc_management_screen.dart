@@ -86,7 +86,7 @@ class KycManagementScreen extends StatelessWidget {
           text: 'New KYC',
           isLoading: false,
           icon: const Icon(Icons.add, color: Colors.white),
-          onPressed: () => context.go('/kyc-management/add'),
+          onPressed: () => context.go('/kycs/add/id-type'),
         ),
       ),
     );

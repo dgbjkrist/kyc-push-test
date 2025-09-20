@@ -36,6 +36,9 @@ class _IdExtractScreenState extends State<IdExtractScreen> {
     try {
       final text = await recognizeTextFromImage(image);
       setState(() { _ocrText = text; });
+      print(":::::::::::::::::");
+      print("OCR text: $text");
+      print(":::::::::::::::::");
 
       // 1) try MRZ
       final mrz = parseMRZ(text);

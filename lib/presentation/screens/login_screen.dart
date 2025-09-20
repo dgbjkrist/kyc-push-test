@@ -16,8 +16,22 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,8 +94,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           formState.isValid ?
                             context.read<LoginCubit>().login(
-                              email: formState.email.value,
-                              password: formState.password.value,
+                              email: formState.email,
+                              password: formState.password,
                             )
                           : null;
                         },

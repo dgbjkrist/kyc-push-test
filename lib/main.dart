@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kyc/core/di/service_locator.dart' as di;
 import 'package:kyc/core/navigation/app_router.dart';
 
+import 'presentation/cubits/forms/kyc_form_cubit.dart';
 import 'presentation/cubits/forms/login_form_cubit.dart';
+import 'presentation/cubits/kyc_cubit.dart';
 import 'presentation/cubits/login_cubit.dart';
 
 void main() async {
@@ -20,6 +22,8 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(providers: [
       BlocProvider(create: (context) => di.sl<LoginCubit>()),
       BlocProvider(create: (context) => di.sl<LoginFormCubit>()),
+      BlocProvider(create: (context) => di.sl<KycCubit>()),
+      BlocProvider(create: (context) => di.sl<KycFormCubit>()),
     ], child: MaterialApp.router(
       title: 'KYC app',
       debugShowCheckedModeBanner: false,
