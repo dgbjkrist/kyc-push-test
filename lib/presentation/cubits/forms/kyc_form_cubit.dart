@@ -51,7 +51,7 @@ class KycFormCubit extends Cubit<KycFormState> {
       kycFormStateChanged = kycFormStateChanged.copyWith(cardRectoPath: path);
       extractedInfo = await ocr.extractFromImage(path);
     }
-    if (slot == 'verso') kycFormStateChanged = kycFormStateChanged.copyWith(cardRectoPath: path);
+    if (slot == 'verso') kycFormStateChanged = kycFormStateChanged.copyWith(cardVersoPath: path);
     try {
 
       if (extractedInfo != null) {

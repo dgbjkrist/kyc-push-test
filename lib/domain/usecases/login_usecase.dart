@@ -2,12 +2,11 @@ import 'package:kyc/core/errors/result.dart';
 import 'package:kyc/domain/value_objects/password.dart';
 
 import '../entities/auth.dart';
-import '../entities/user.dart';
-import '../repositories/login_repository.dart';
+import '../repositories/auth_repository.dart';
 import '../value_objects/email.dart';
 
 class LoginUsecase {
-  final LoginRepository repository;
+  final AuthRepository repository;
 
   LoginUsecase(this.repository);
 

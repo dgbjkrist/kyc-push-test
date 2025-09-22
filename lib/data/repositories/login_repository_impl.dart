@@ -7,13 +7,18 @@ import '../../core/errors/failures.dart';
 import '../../core/errors/result.dart';
 import '../../core/network/network_info.dart';
 import '../../domain/entities/user.dart';
-import '../../domain/repositories/login_repository.dart';
+import '../../domain/repositories/auth_repository.dart';
 import '../datasources/remote/login_api_service.dart';
 
-class LoginRepositoryImpl implements LoginRepository {
-  final LoginApiService loginApiService;
+class LoginRepositoryImpl implements AuthRepository {
+  final AuthApiService loginApiService;
 
   LoginRepositoryImpl(this.loginApiService);
+
+  @override
+  Future<Result<Null>> logout() async {
+    return await loginApiService.logout();
+  }
 
   @override
   Future<Result<Auth>> login(Email email, Password password) async {

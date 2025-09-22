@@ -1,0 +1,4 @@
+{
+  "certificate_pins": ["REMPLACER_PAR_LE_VRAI_PIN"],
+  "api_base_url": "https://remplacer-par-la-bonne-url.com",
+}

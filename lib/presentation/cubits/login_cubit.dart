@@ -13,7 +13,7 @@ class LoginCubit extends Cubit<LoginState> {
   final LoginUsecase _loginUseCase;
   LoginCubit(this._loginUseCase) : super(LoginInitial());
 
-  Future<void> login({
+  Future<Result<Auth>> login({
     required Email email,
     required Password password,
   }) async {
@@ -27,8 +27,10 @@ class LoginCubit extends Cubit<LoginState> {
       switch (resultLogin) {
         case Success(data: final auth):
           emit(LoginSuccess(auth));
+          return Success(auth);
         case Failure(failure: final f):
           emit(LoginError(f.message));
+          return Failure(f);
       }
   }
 }

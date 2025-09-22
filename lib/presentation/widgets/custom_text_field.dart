@@ -10,11 +10,12 @@ Widget CustomTextField({
   bool readonly = false,
   TextEditingController? controller,
   List<TextInputFormatter>? formatters,
-  Function? validator,
+  String? Function(String?)? validator,
   Color? borderColor,
   String? hintText,
   isPassword = false,
   IconData? prefixIcon,
+  String? errorText,
 }) {
   return Container(
     padding: EdgeInsets.symmetric(horizontal: 10),
@@ -39,6 +40,7 @@ Widget CustomTextField({
       initialValue: initialValue,
       onChanged: onChanged,
       obscureText: isPassword,
+      validator: validator,
       decoration: InputDecoration(
         prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
         labelText: labelText,
@@ -51,6 +53,11 @@ Widget CustomTextField({
           fontWeight: FontWeight.w400,
         ),
         hintText: hintText,
+        errorText: errorText,
+        errorStyle: TextStyle(
+          color: Colors.red,
+          fontSize: 12,
+        ),
       ),
     ),
   );

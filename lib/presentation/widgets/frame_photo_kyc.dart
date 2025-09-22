@@ -10,54 +10,117 @@ class FramePhotoKyc extends StatelessWidget {
   final VoidCallback onTap;
   final String? path;
 
-  const FramePhotoKyc({super.key, required this.title, required this.subtitle, required this.onTap, this.path});
+  const FramePhotoKyc({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+    this.path,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.grey.shade300,
-            style: BorderStyle.solid,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.grey[800],
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey[300]!, width: 2),
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[100],
+              ),
+              child: path != null && path!.isNotEmpty
+                  ? _buildImageWithOverlay(path!)
+                  : _buildPlaceholder(),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageWithOverlay(String imagePath) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Image.file(
+            File(imagePath),
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Container(
+                color: Colors.grey[200],
+                child: Icon(Icons.error, color: Colors.red, size: 50),
+              );
+            },
           ),
         ),
-        child: path != null && path!.isNotEmpty ? Image.file(
-          File(path!),
-          fit: BoxFit.scaleDown,
-        ) : Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.camera_alt, color: AppColors.colorBlue),
+        Positioned(
+          bottom: 10,
+          right: 10,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(20),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 16)),
-                  const SizedBox(height: 4),
-                  Text(subtitle,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2, style: TextStyle(color: Colors.grey[600])),
-                ],
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.camera_alt, color: Colors.white, size: 16),
+                const SizedBox(width: 4),
+                Text(
+                  "Reprendre",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
+    );
+  }
+
+  Widget _buildPlaceholder() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(Icons.camera_alt, size: 50, color: Colors.grey[400]),
+        const SizedBox(height: 8),
+        Text(
+          "Appuyer pour prendre une photo",
+          style: TextStyle(color: Colors.grey[600], fontSize: 14),
+        ),
+      ],
     );
   }
 }

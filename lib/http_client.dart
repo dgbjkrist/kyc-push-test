@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart';
 
 import 'certificate_pinning_interceptor.dart';
@@ -10,10 +10,13 @@ class HttpClient {
   final Dio _dio;
   final SecureStorage _storage;
 
-  HttpClient({required List<String> certificatePins, required SecureStorage storage})
-      : _dio = CertificatePinningInterceptor(certificatePins).createDioWithPinning(),
-        _storage = storage
-  {
+  HttpClient({
+    required List<String> certificatePins,
+    required SecureStorage storage,
+  }) : _dio = CertificatePinningInterceptor(
+         certificatePins,
+       ).createDioWithPinning(),
+       _storage = storage {
     _setupDefaultHeaders();
     _loadStoredToken();
   }
@@ -32,7 +35,6 @@ class HttpClient {
     }
   }
 
-  // Méthode pour mettre à jour le token
   void updateBearerToken(String? newToken) {
     if (newToken != null) {
       _dio.options.headers['Authorization'] = 'Bearer $newToken';
@@ -42,10 +44,10 @@ class HttpClient {
   }
 
   Future<Response> get(
-      String endpoint, {
-        Map<String, dynamic>? queryParameters,
-        Map<String, String>? customHeaders,
-      }) async {
+    String endpoint, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, String>? customHeaders,
+  }) async {
     final options = Options(headers: customHeaders);
     return await _dio.get(
       endpoint,
@@ -55,56 +57,40 @@ class HttpClient {
   }
 
   Future<Response> post(
-      String endpoint, {
-        dynamic body,
-        Map<String, String>? customHeaders,
-        String? idempotencyKey,
-      }) async {
+    String endpoint, {
+    dynamic body,
+    Map<String, String>? customHeaders,
+    String? idempotencyKey,
+  }) async {
+    print("Idempotency-Key: $idempotencyKey");
     final headers = {...?customHeaders};
     if (idempotencyKey != null) {
       headers['Idempotency-Key'] = idempotencyKey;
     }
 
     final options = Options(headers: headers);
-    return await _dio.post(
-      endpoint,
-      data: body,
-      options: options,
-    );
+    return await _dio.post(endpoint, data: body, options: options);
   }
 
-  // UPLOAD de fichiers multipart/form-data
   Future<Response> uploadMultipart(
-      String endpoint, {
-        required Map<String, dynamic> fields,
-        required List<File> files,
-        String fileFieldName = 'files',
-        Map<String, String>? customHeaders,
-        String? idempotencyKey,
-      }) async {
+    String endpoint, {
+    required String documentType,
+    required Uint8List fileBytes,
+        required String fileName,
+        required String mimeType,
+    Map<String, String>? customHeaders,
+    String? idempotencyKey,
+  }) async {
     final formData = FormData();
+    final multipartFile = MultipartFile.fromBytes(
+      fileBytes,
+      filename: fileName,
+      contentType: MediaType.parse(mimeType),
+    );
 
-    // Ajouter les champs texte
-    fields.forEach((key, value) {
-      formData.fields.add(MapEntry(key, value.toString()));
-    });
+    formData.fields.add(MapEntry('document_type', documentType));
+    formData.files.add(MapEntry('file', multipartFile));
 
-    // Ajouter les fichiers
-    for (final file in files) {
-      final fileName = file.path.split('/').last;
-      final fileBytes = await file.readAsBytes();
-
-      formData.files.add(MapEntry(
-        fileFieldName,
-        MultipartFile.fromBytes(
-          fileBytes,
-          filename: fileName,
-          contentType: MediaType('application', 'octet-stream'),
-        ),
-      ));
-    }
-
-    // Préparer les headers
     final headers = {
       ...?customHeaders,
       if (idempotencyKey != null) 'Idempotency-Key': idempotencyKey,
@@ -113,10 +99,7 @@ class HttpClient {
     return await _dio.post(
       endpoint,
       data: formData,
-      options: Options(
-        headers: headers,
-        contentType: 'multipart/form-data',
-      ),
+      options: Options(headers: headers, contentType: 'multipart/form-data'),
     );
   }
 }

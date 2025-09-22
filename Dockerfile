@@ -1,20 +1,24 @@
-FROM debian:bullseye-slim
+# Use an image with Flutter SDK (cirrusci provides good images)
+FROM cirrusci/flutter:stable
 
-RUN apt-get update && apt-get install -y \
-    curl unzip git xz-utils zip libglu1-mesa openjdk-17-jdk \
-    && rm -rf /var/lib/apt/lists/*
 
-ENV FLUTTER_VERSION=3.24.0
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter \
-    && cd /usr/local/flutter \
-    && git checkout $FLUTTER_VERSION \
-    && ./bin/flutter precache
-
-ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:$PATH"
-
-RUN flutter doctor
-
+# install Android SDK commandline tools if not present (cirrus image already contains Android)
+# Set working directory
 WORKDIR /app
-COPY . /app
 
-CMD ["flutter", "run"]
+
+# copy pubspec first (for caching pub get)
+COPY pubspec.* ./
+RUN flutter pub get
+
+
+# copy rest
+COPY . .
+
+
+# ensure gradle wrapper executable
+RUN chmod +x ./android/gradlew || true
+
+
+# Accept Android licenses (non-interactive)
+RUN yes | sdkmanager --licenses || true

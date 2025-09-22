@@ -77,7 +77,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _emailController,
                         prefixIcon: Icons.email_outlined,
                         onChanged: (value) => context.read<LoginFormCubit>().emailChanged(value),
-                        validator: () => !formState.email.isValid ? formState.email.error : null,
+                        errorText: formState is LoginFormStateChanged && !formState.email.isValid
+                            ? formState.email.error
+                            : null,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
@@ -85,7 +87,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         controller: _passwordController,
                         isPassword: true,
                         onChanged: (value) => context.read<LoginFormCubit>().passwordChanged(value),
-                        validator: () => !formState.password.isValid ? formState.password.error : null,
+                        errorText: formState is LoginFormStateChanged && !formState.password.isValid
+                            ? formState.password.error
+                            : null,
                       ),
                       const SizedBox(height: 24),
                       CustomButton(

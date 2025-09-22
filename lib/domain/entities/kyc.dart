@@ -4,7 +4,7 @@ import '../value_objects/nationality.dart';
 
 class Kyc {
   final String id;
-  final String idType;
+  final String? idType;
   final FullName fullName;
   final DateOfBirth dateOfBirth;
   final Nationality nationality;
@@ -16,7 +16,7 @@ class Kyc {
 
   Kyc({
     required this.id,
-    required this.idType,
+    this.idType,
     required this.fullName,
     required this.dateOfBirth,
     required this.nationality,
@@ -29,7 +29,7 @@ class Kyc {
 
   Map<String, dynamic> toJson() => {
     'id': id,
-    'idType': idType,
+    'id_type': idType,
     'full_name': fullName.value,
     'date_of_birth': dateOfBirth.value,
     'nationality': nationality.value,
@@ -40,16 +40,16 @@ class Kyc {
     'created_at': createdAt?.toIso8601String(),
   };
 
-  factory Kyc.fromJson(Map<String, dynamic> j) => Kyc(
-    id: j['id'] as String,
-    idType: j['idType'] as String,
-    fullName: FullName(j['full_name'] as String),
-    dateOfBirth: DateOfBirth(j['date_of_birth'] as String),
-    nationality: Nationality(j['nationality'] as String),
-    faceImagePath: j['face_path'] as String,
-    cardRectoPath: j['recto_path'] as String,
-    cardVersoPath: j['verso_path'] as String?,
-    synced: j['synced'] as bool? ?? false,
-    createdAt: DateTime.parse(j['created_at'] as String),
+  factory Kyc.fromJson(Map<String, dynamic> jsonData) => Kyc(
+    id: jsonData['id'] as String,
+    idType: jsonData['id_type'] as String?,
+    fullName: FullName(jsonData['full_name'] as String),
+    dateOfBirth: DateOfBirth(jsonData['date_of_birth'] as String),
+    nationality: Nationality(jsonData['nationality'] as String),
+    faceImagePath: jsonData['face_path'] as String,
+    cardRectoPath: jsonData['recto_path'] as String,
+    cardVersoPath: jsonData['verso_path'] as String?,
+    synced: jsonData['synced'] as bool? ?? false,
+    createdAt: jsonData['created_at'],
   );
 }

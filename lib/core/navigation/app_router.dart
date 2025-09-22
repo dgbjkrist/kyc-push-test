@@ -3,10 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:kyc/presentation/screens/id_type_screen.dart';
 
-import '../../id_extract_screen.dart';
 import '../../presentation/cubits/login_cubit.dart';
 import '../../presentation/screens/id_pictures_screen.dart';
-import '../../presentation/screens/kyc_detail_screen.dart';
 import '../../presentation/screens/kyc_management_screen.dart';
 import '../../presentation/screens/login_screen.dart';
 

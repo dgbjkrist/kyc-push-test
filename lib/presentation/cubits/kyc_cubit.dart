@@ -3,13 +3,12 @@ import 'package:meta/meta.dart';
 
 import '../../core/errors/result.dart';
 import '../../domain/entities/kyc.dart';
-import '../../domain/repositories/kyc_repository.dart';
-import '../../domain/usecases/kyc_usecase.dart';
+import '../../domain/usecases/create_kyc_usecase.dart';
 
 part 'kyc_state.dart';
 
 class KycCubit extends Cubit<KycState> {
-  final KycUsecase kycUsecase;
+  final CreateKycUsecase kycUsecase;
   KycCubit(this.kycUsecase) : super(KycStateInitial());
 
   Future<void> submit(Kyc kyc) async {

@@ -8,10 +8,24 @@ import '../../../core/errors/result.dart';
 import '../../../http_client.dart';
 import '../../models/auth_dto.dart';
 
-class LoginApiService {
+class AuthApiService {
   final HttpClient httpClient;
   final SecureStorage secureStorage;
-  LoginApiService(this.httpClient, this.secureStorage);
+  AuthApiService(this.httpClient, this.secureStorage);
+
+  Future<Result<Null>> logout() async {
+    try {
+      final apiResponse = await httpClient.post('/logout');
+      if (apiResponse.statusCode == HttpStatus.ok) {
+        await secureStorage.clear();
+        return Success(null);
+      } else {
+        return Failure(ServerError('Invalid status code ${apiResponse.statusCode}'));
+      }
+    } catch (e) {
+      return Failure(ServerError('Exception: $e'));
+    }
+  }
 
   Future<Result<AuthDto>> login(String email, String password) async {
     try {
@@ -23,10 +37,10 @@ class LoginApiService {
           body: body);
 
       if (apiResponse.statusCode == HttpStatus.ok || apiResponse.statusCode == HttpStatus.created) {
-        // final data = jsonDecode(apiResponse.data);
         final auth = AuthDto.fromJson(apiResponse.data);
         if (auth.token == null) return Failure(ServerError('Invalid token'));
         await secureStorage.saveToken(auth.token!);
+        httpClient.updateBearerToken(auth.token!);
         return Success(auth);
       } else {
         return Failure(ServerError('Invalid status code ${apiResponse.statusCode}'));

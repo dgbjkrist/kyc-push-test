@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kyc/data/models/hive/kyc_local_model.dart';
 
@@ -25,38 +27,56 @@ class KycLocalDataSource {
   }
 
   Future<void> savePending(Kyc kyc) async {
-    final [faceImage, rectoImage, versoImage] = await Future.wait([
+    print("Saving pending kyc: ${kyc.faceImagePath} ${kyc.cardRectoPath} ${kyc.cardVersoPath}");
+    List<Future<Uint8List>> uint8ListFutures = [
       File(kyc.faceImagePath).readAsBytes(),
       File(kyc.cardRectoPath).readAsBytes(),
-      if (kyc.cardVersoPath != null) File(kyc.cardVersoPath!).readAsBytes(),
-    ]);
+      ];
 
-    final [facePath, rectoPath, versoPath] = await Future.wait([
-      _fileStorage.saveEncryptedFile('${kyc.id}_face', faceImage),
-      _fileStorage.saveEncryptedFile('${kyc.id}_recto', rectoImage),
-      if (kyc.cardVersoPath != null) _fileStorage.saveEncryptedFile('${kyc.id}_verso', versoImage),
-    ]);
+      if (kyc.cardVersoPath != null && kyc.cardVersoPath!.isNotEmpty) uint8ListFutures.add(File(kyc.cardVersoPath!).readAsBytes());
+
+    final results = await Future.wait(uint8ListFutures);
+
+    Uint8List faceImage = results[0];
+    Uint8List rectoImage = results[1];
+    Uint8List? versoImage = results.length > 2 ? results[2] : null;
+
+      List<Future<String?>> encryptedFileFutures = [
+        _fileStorage.saveEncryptedFile('${kyc.id}_face', faceImage),
+        _fileStorage.saveEncryptedFile('${kyc.id}_recto', rectoImage),
+        ];
+
+      if (versoImage != null) encryptedFileFutures.add(_fileStorage.saveEncryptedFile('${kyc.id}_verso', versoImage));
+
+    final paths = await Future.wait(encryptedFileFutures);
+    String facePath = paths[0]!;
+    String rectoPath = paths[1]!;
+    String? versoPath = paths.length > 2 ? paths[2] : null;
 
     final box = Hive.box(_boxName);
     await box.put(kyc.id, {
       'id': kyc.id,
-      'fullName': kyc.fullName,
-      'dateOfBirth': kyc.dateOfBirth,
-      'nationality': kyc.nationality,
-      'faceImagePath': facePath,
-      'cardRectoPath': rectoPath,
-      'cardVersoPath': versoPath,
+      'id_type': kyc.idType,
+      'full_name': kyc.fullName.value,
+      'date_of_birth': kyc.dateOfBirth.value,
+      'nationality': kyc.nationality.value,
+      'face_path': facePath,
+      'recto_path': rectoPath,
+      'verso_path': versoPath,
       'synced': kyc.synced,
-      'createdAt': kyc.createdAt,
+      'created_at': kyc.createdAt,
     });
   }
 
-  List<Kyc> getAllPending() {
+  Future<List<Kyc>> getAllPending() async {
     final box = Hive.box(_boxName);
-    return box.keys.map((k) {
-      final raw = Map<String, dynamic>.from(box.get(k));
+    final keys = box.keys.toList();
+
+    final futures = keys.map((key) async {
+      final raw = Map<String, dynamic>.from(box.get(key));
       return Kyc.fromJson(raw);
     }).toList();
+    return await Future.wait(futures);
   }
 
   Future<void> deletePending(String id) async {
