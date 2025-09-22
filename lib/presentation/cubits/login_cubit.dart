@@ -3,7 +3,7 @@ import 'package:kyc/domain/usecases/login_usecase.dart';
 import 'package:kyc/domain/value_objects/password.dart';
 import 'package:meta/meta.dart';
 
-import '../../core/result.dart';
+import '../../core/errors/result.dart';
 import '../../domain/entities/auth.dart';
 import '../../domain/value_objects/email.dart';
 

@@ -1,9 +1,10 @@
-import 'package:kyc/core/result.dart';
+import 'package:kyc/core/errors/result_extensions.dart';
 import 'package:kyc/domain/entities/auth.dart';
 import 'package:kyc/domain/value_objects/email.dart';
 import 'package:kyc/domain/value_objects/password.dart';
 
-import '../../core/failures.dart';
+import '../../core/errors/failures.dart';
+import '../../core/errors/result.dart';
 import '../../core/network/network_info.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/login_repository.dart';
@@ -17,11 +18,9 @@ class LoginRepositoryImpl implements LoginRepository {
   @override
   Future<Result<Auth>> login(Email email, Password password) async {
       final remoteResult = await loginApiService.login(email.value, password.value);
-      switch (remoteResult) {
-        case Success(data: final auth):
-          return Success(auth);
-        case Failure(failure: final f):
-          return Failure(f);
-      }
+      return remoteResult.when(
+        success: (auth) => Success(auth),
+        failure: (error) => Failure(error),
+      );
   }
 }

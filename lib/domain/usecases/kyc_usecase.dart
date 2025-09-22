@@ -1,4 +1,4 @@
-import '../../core/result.dart';
+import '../../core/errors/result.dart';
 import '../entities/kyc.dart';
 import '../repositories/kyc_repository.dart';
 

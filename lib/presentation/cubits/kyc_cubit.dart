@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../core/result.dart';
+import '../../core/errors/result.dart';
 import '../../domain/entities/kyc.dart';
 import '../../domain/repositories/kyc_repository.dart';
 import '../../domain/usecases/kyc_usecase.dart';

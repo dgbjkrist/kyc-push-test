@@ -22,11 +22,9 @@ class KycFormCubit extends Cubit<KycFormState> {
   }
 
   Future<void> processImage(String slot) async {
-    print("Processing image $slot");
     final image = await imagePickerService.pickImage();
 
     if (image == null) {
-      print("Image is null");
       emit(KycFormStateError("An error occured while taking picture"));
       return ;
     }
@@ -36,7 +34,6 @@ class KycFormCubit extends Cubit<KycFormState> {
     if (state is KycFormStateChanged) {
       kycFormStateChanged = state as KycFormStateChanged;
     } else {
-      print("State is not KycFormStateChanged");
       kycFormStateChanged = KycFormStateChanged(
         idType: "",
         fullName: FullName(""),
@@ -55,9 +52,6 @@ class KycFormCubit extends Cubit<KycFormState> {
       extractedInfo = await ocr.extractFromImage(path);
     }
     if (slot == 'verso') kycFormStateChanged = kycFormStateChanged.copyWith(cardRectoPath: path);
-    print("Extracted info: ${extractedInfo?.dateOfBirth}");
-    print("Extracted info: ${extractedInfo?.fullName}");
-    print("Extracted info: ${extractedInfo?.nationality}");
     try {
 
       if (extractedInfo != null) {
@@ -67,12 +61,6 @@ class KycFormCubit extends Cubit<KycFormState> {
       }
     } catch (e) {}
     emit(kycFormStateChanged);
-  }
-
-  void pickIdVerso(String path) {
-    if (state case KycFormStateChanged s) {
-      emit(s.copyWith(cardVersoPath: path));
-    }
   }
 
   void updateFullName(String v) {

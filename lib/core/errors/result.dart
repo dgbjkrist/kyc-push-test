@@ -1,4 +1,4 @@
-import 'package:kyc/core/failures.dart';
+import 'package:kyc/core/errors/failures.dart';
 
 sealed class Result<T> {
   const Result();

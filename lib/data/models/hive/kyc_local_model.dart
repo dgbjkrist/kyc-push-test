@@ -21,18 +21,6 @@ class KycLocalModel {
     required this.createdAt,
   });
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'fullName': fullName,
-    'dateOfBirth': dateOfBirth,
-    'nationality': nationality,
-    'faceImagePath': faceImagePath,
-    'cardRectoPath': cardRectoPath,
-    'cardVersoPath': cardVersoPath,
-    'synced': synced,
-    'createdAt': createdAt,
-  };
-
   factory KycLocalModel.fromJson(Map<String, dynamic> j) => KycLocalModel(
     id: j['id'] as String,
     fullName: j['fullName'] as String,

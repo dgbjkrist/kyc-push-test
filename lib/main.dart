@@ -4,6 +4,7 @@ import 'package:kyc/core/di/service_locator.dart' as di;
 import 'package:kyc/core/navigation/app_router.dart';
 
 import 'connectivity_listener.dart';
+import 'presentation/blocs/sync_bloc.dart';
 import 'presentation/cubits/forms/kyc_form_cubit.dart';
 import 'presentation/cubits/forms/login_form_cubit.dart';
 import 'presentation/cubits/kyc_cubit.dart';
@@ -27,6 +28,7 @@ class MyApp extends StatelessWidget {
       BlocProvider(create: (context) => di.sl<LoginFormCubit>()),
       BlocProvider(create: (context) => di.sl<KycCubit>()),
       BlocProvider(create: (context) => di.sl<KycFormCubit>()),
+      BlocProvider(create: (context) => di.sl<SyncBloc>()),
     ], child: MaterialApp.router(
       title: 'KYC app',
       debugShowCheckedModeBanner: false,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kyc/data/models/hive/kyc_local_model.dart';
@@ -23,9 +24,31 @@ class KycLocalDataSource {
     );
   }
 
-  Future<void> savePending(KycLocalModel item) async {
+  Future<void> savePending(Kyc kyc) async {
+    final [faceImage, rectoImage, versoImage] = await Future.wait([
+      File(kyc.faceImagePath).readAsBytes(),
+      File(kyc.cardRectoPath).readAsBytes(),
+      if (kyc.cardVersoPath != null) File(kyc.cardVersoPath!).readAsBytes(),
+    ]);
+
+    final [facePath, rectoPath, versoPath] = await Future.wait([
+      _fileStorage.saveEncryptedFile('${kyc.id}_face', faceImage),
+      _fileStorage.saveEncryptedFile('${kyc.id}_recto', rectoImage),
+      if (kyc.cardVersoPath != null) _fileStorage.saveEncryptedFile('${kyc.id}_verso', versoImage),
+    ]);
+
     final box = Hive.box(_boxName);
-    await box.put(item.id, item.toJson());
+    await box.put(kyc.id, {
+      'id': kyc.id,
+      'fullName': kyc.fullName,
+      'dateOfBirth': kyc.dateOfBirth,
+      'nationality': kyc.nationality,
+      'faceImagePath': facePath,
+      'cardRectoPath': rectoPath,
+      'cardVersoPath': versoPath,
+      'synced': kyc.synced,
+      'createdAt': kyc.createdAt,
+    });
   }
 
   List<Kyc> getAllPending() {

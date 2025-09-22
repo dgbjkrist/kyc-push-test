@@ -1,41 +1,35 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
-import 'package:kyc/core/result.dart';
 import 'package:kyc/core/secure_storage/secure_storage.dart';
 
-import '../../../core/failures.dart';
+import '../../../core/errors/failures.dart';
+import '../../../core/errors/result.dart';
 import '../../../domain/entities/kyc.dart';
+import '../../../http_client.dart';
 import '../../models/applicant_dto.dart';
+import 'DTO/document_upload_request.dart';
 
 class KycApiClient {
-  final http.Client client;
+  final HttpClient httpClient;
   final SecureStorage secureStorage;
 
-  KycApiClient(this.client, this.secureStorage);
+  KycApiClient(this.httpClient, this.secureStorage);
 
   Future<Result<ApplicantDto>> createKycApplication(Kyc kyc) async {
     try {
-      final url = Uri.parse('https://kyc.xpertbot.online/api/kyc-applications');
-      final authToken = await secureStorage.getToken();
       final body = {
         'full_name': kyc.fullName.value,
         'date_of_birth': kyc.dateOfBirth.value,
         'nationality': kyc.nationality.value,
       };
-      final apiResponse = await client.post(url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
-        },
+      final apiResponse = await httpClient.post('/api/kyc-applications',
         body: jsonEncode(body),
+        idempotencyKey: kyc.id
       );
 
       if (apiResponse.statusCode == HttpStatus.ok || apiResponse.statusCode == HttpStatus.created) {
-        final bodyDecoded = jsonDecode(apiResponse.body);
+        final bodyDecoded = jsonDecode(apiResponse.data);
         final applicantDto = ApplicantDto.fromJson(bodyDecoded);
         return Success(applicantDto);
       } else {
@@ -46,19 +40,22 @@ class KycApiClient {
     }
   }
 
-  Future<void> uploadDocuments(String appId, Kyc kyc) async {
-    final url = Uri.parse('/kyc-applications/$appId/documents');
-    final authToken = await secureStorage.getToken();
-    final request = http.MultipartRequest('POST', url);
-    request.headers['Authorization'] = 'Bearer $authToken';
-    request.files.add(await http.MultipartFile.fromPath('files', kyc.faceImagePath));
-    request.files.add(await http.MultipartFile.fromPath('files', kyc.cardRectoPath));
-    if (kyc.cardVersoPath != null) request.files.add(await http.MultipartFile.fromPath('files', kyc.cardVersoPath!));
-
-    final streamed = await client.send(request);
-    final response = await http.Response.fromStream(streamed);
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw Exception('Upload docs failed: ${response.statusCode}');
+  Future<Result<void>> uploadDocument(DocumentUploadRequest documentUploadRequest,
+      {required String idempotencyKey}) async {
+    try {
+      final apiResponse = await httpClient.uploadMultipart(
+        '/kyc-applications/${documentUploadRequest.applicantId}/documents',
+        fields: {'document_type': documentUploadRequest.documentType},
+        files: [File(documentUploadRequest.path)],
+        idempotencyKey: idempotencyKey,
+      );
+      if (apiResponse.statusCode == HttpStatus.ok || apiResponse.statusCode == HttpStatus.created) {
+        return Success(null);
+      } else {
+        return Failure(ServerError('Invalid status code ${apiResponse.statusCode}'));
+      }
+    } catch (e) {
+      return Failure(ServerError('Exception: $e'));
     }
   }
 }

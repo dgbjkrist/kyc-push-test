@@ -6,6 +6,7 @@ class ConnectivityListener {
 
   ConnectivityListener(this.syncBloc) {
     Connectivity().onConnectivityChanged.listen((status) {
+      print("Connectivity changed: $status");
       if (status.contains(ConnectivityResult.none)) {
         syncBloc.add(NetworkOnlineEvent());
       }

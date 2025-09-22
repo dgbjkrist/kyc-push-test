@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
-import '../../core/result.dart';
+import '../../core/errors/result.dart';
 import '../../domain/repositories/kyc_repository.dart';
 
 part 'sync_event.dart';
@@ -22,6 +22,7 @@ class SyncBloc extends Bloc<SyncEvent, SyncState> {
 
   Future<void> _processPendingKyc(Emitter<SyncState> emit) async {
     emit(SyncLoading());
+    print("SyncBloc _processPendingKyc");
     final result = await _kycRepository.retryPending();
     switch (result) {
       case Success(data: final kycs):
