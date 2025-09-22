@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/theme/app_colors.dart';
+import '../../domain/entities/kyc.dart';
 import '../cubits/forms/kyc_form_cubit.dart';
+import '../cubits/kyc_cubit.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/frame_photo_kyc.dart';
@@ -76,11 +78,13 @@ class _IdPicturesScreenState extends State<IdPicturesScreen> {
                   title: "Photo Visage",
                   subtitle: "Prenez la photo en vous assurant que le visage soit bien eclairé",
                   onTap: () => _takePhoto("face"),
+                  path: state is KycFormStateChanged ? state.faceImagePath : null,
                 ),
                 FramePhotoKyc(
                   title: "Pièce Recto",
                   subtitle: "Prenez en photo la partie recto document en vous assurant que les informations sont bien visibles",
                   onTap: () => _takePhoto("recto"),
+                  path: state is KycFormStateChanged ? state.cardRectoPath : null,
                 ),
                 Column(
                   children: [
@@ -122,6 +126,7 @@ class _IdPicturesScreenState extends State<IdPicturesScreen> {
                   title: "Pièce Verso",
                   subtitle: "Prenez en photo la pièce en vous assurant que les informations sont bien visibles",
                   onTap: () => _takePhoto("verso"),
+                  path: state is KycFormStateChanged ? state.cardVersoPath : null,
                 ),
               ],
             ),
@@ -132,8 +137,12 @@ class _IdPicturesScreenState extends State<IdPicturesScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: CustomButton(
           text: 'Continuer',
-          isLoading: false,
-          onPressed: () {},
+          isLoading: state is KycStateLoading,
+          onPressed: () {
+            final kycFomState = context.read<KycFormCubit>().state;
+            if (kycFomState is !KycFormStateChanged) return;
+            context.read<KycCubit>().submit(kycFomState.toEntity());
+          },
         ),
       ),
     );

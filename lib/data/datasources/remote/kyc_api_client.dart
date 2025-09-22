@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:kyc/core/result.dart';
-import 'package:kyc/core/storage/secure_storage.dart';
+import 'package:kyc/core/secure_storage/secure_storage.dart';
 
 import '../../../core/failures.dart';
 import '../../../domain/entities/kyc.dart';
@@ -19,7 +19,7 @@ class KycApiClient {
 
   Future<Result<ApplicantDto>> createKycApplication(Kyc kyc) async {
     try {
-      final url = Uri.parse('/kyc-applications');
+      final url = Uri.parse('https://kyc.xpertbot.online/api/kyc-applications');
       final authToken = await secureStorage.getToken();
       final body = {
         'full_name': kyc.fullName.value,

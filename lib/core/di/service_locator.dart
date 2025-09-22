@@ -5,6 +5,8 @@ import 'package:kyc/core/ocr/ocr_service.dart';
 import 'package:kyc/presentation/cubits/forms/login_form_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../connectivity_listener.dart';
+import '../../data/datasources/local/kyc_local_data_source.dart';
 import '../../data/datasources/remote/login_api_service.dart';
 import '../../data/repositories/kyc_repository_impl.dart';
 import '../../data/repositories/login_repository_impl.dart';
@@ -12,6 +14,7 @@ import '../../domain/repositories/kyc_repository.dart';
 import '../../domain/repositories/login_repository.dart';
 import '../../domain/usecases/kyc_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../presentation/blocs/sync_bloc.dart';
 import '../../presentation/cubits/forms/kyc_form_cubit.dart';
 import '../../presentation/cubits/kyc_cubit.dart';
 import '../../presentation/cubits/login_cubit.dart';
@@ -20,18 +23,32 @@ import '../network/network_info.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
-import '../secure/secure_key_manager.dart';
-import '../storage/secure_storage.dart';
+import '../secure_storage/hive_key_manager.dart';
+import '../secure_storage/secure_file_storage.dart';
+import '../secure_storage/secure_storage.dart';
 
 final GetIt sl = GetIt.instance;
+
+Future<void> initAsyncDependencies() async {
+  final keyManager = sl<HiveKeyManager>();
+  final encryptionKey = await keyManager.getOrCreateKey();
+
+  final fileStorage = SecureFileStorage(encryptionKey);
+  sl.registerSingleton<SecureFileStorage>(fileStorage);
+
+  final kycLocal = KycLocalDataSource(
+    fileStorage: fileStorage,
+    encryptionKey: encryptionKey,
+  );
+  await kycLocal.init();
+}
 
 Future<void> setUpLocator() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   sl.registerSingleton<SharedPreferences>(prefs);
   sl.registerLazySingleton<Connectivity>(() => Connectivity());
-  sl.registerLazySingleton(() => SecureStorage());
-  sl.registerLazySingleton(() => SecureKeyManager(sl()));
-  sl.registerLazySingleton<OcrService>(() => OcrService());
+  sl.registerLazySingleton(() => HiveKeyManager(sl()));
+  sl.registerLazySingleton<OcrService>(() => OcrService(sl()));
   sl.registerLazySingleton(() => http.Client());
 
   sl.registerLazySingleton<ImagePickerService>(() => ImagePickerServiceImpl());
@@ -45,6 +62,8 @@ Future<void> setUpLocator() async {
   sl.registerLazySingleton<LoginUsecase>(() => LoginUsecase(sl()));
   sl.registerLazySingleton<KycUsecase>(() => KycUsecase(sl()));
 
+  sl.registerLazySingleton<SyncBloc>(() => SyncBloc(sl()));
+  sl.registerLazySingleton<ConnectivityListener>(() => ConnectivityListener(sl()));
   sl.registerFactory(() => KycFormCubit(sl(), sl()));
   sl.registerFactory(() => KycCubit(sl()));
   sl.registerLazySingleton<LoginFormCubit>(() => LoginFormCubit());

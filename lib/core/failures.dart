@@ -1,16 +1,20 @@
-sealed class AppError {
+sealed class KError {
   final String message;
-  const AppError(this.message);
+  const KError(this.message);
 }
 
-class ServerError extends AppError {
-  const ServerError(String msg) : super(msg);
+class AppError extends KError {
+  const AppError(super.message);
 }
 
-class CacheError extends AppError {
-  const CacheError(String msg) : super(msg);
+class ServerError extends KError {
+  const ServerError(super.message);
 }
 
-class NetworkError extends AppError {
-  const NetworkError(String msg) : super(msg);
+class CacheError extends KError {
+  CacheError(super.message);
+}
+
+class NetworkError extends KError {
+  const NetworkError(super.message);
 }

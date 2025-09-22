@@ -10,6 +10,6 @@ class Success<T> extends Result<T> {
 }
 
 class Failure<T> extends Result<T> {
-  final AppError failure;
+  final KError failure;
   const Failure(this.failure);
 }

@@ -9,7 +9,9 @@ class ExtractedInfo {
 }
 
 class OcrService {
-  final TextRecognizer _recognizer = TextRecognizer(); // you may inject to mock in tests
+  final TextRecognizer _recognizer;
+
+  const OcrService(this._recognizer);
 
   Future<String> recognizeTextFromImagePath(String imagePath) async {
     final inputImage = InputImage.fromFilePath(imagePath);

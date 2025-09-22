@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -6,8 +8,9 @@ class FramePhotoKyc extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
+  final String? path;
 
-  const FramePhotoKyc({super.key, required this.title, required this.subtitle, required this.onTap});
+  const FramePhotoKyc({super.key, required this.title, required this.subtitle, required this.onTap, this.path});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,10 @@ class FramePhotoKyc extends StatelessWidget {
             style: BorderStyle.solid,
           ),
         ),
-        child: Row(
+        child: path != null && path!.isNotEmpty ? Image.file(
+          File(path!),
+          fit: BoxFit.scaleDown,
+        ) : Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),

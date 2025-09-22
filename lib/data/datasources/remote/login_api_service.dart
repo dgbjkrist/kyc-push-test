@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:kyc/core/storage/secure_storage.dart';
+import 'package:kyc/core/secure_storage/secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../../core/failures.dart';
@@ -30,19 +30,15 @@ class LoginApiService {
           body: body);
 
       if (apiResponse.statusCode == HttpStatus.ok || apiResponse.statusCode == HttpStatus.created) {
-        print("apiResponse.body ::: ${apiResponse.body}");
         final data = jsonDecode(apiResponse.body);
         final auth = AuthDto.fromJson(data);
         if (auth.token == null) return Failure(ServerError('Invalid token'));
         await secureStorage.saveToken(auth.token!);
         return Success(auth);
       } else {
-        print("apiResponse.body faillure ::: ${apiResponse.body}");
         return Failure(ServerError('Invalid status code ${apiResponse.statusCode}'));
       }
     } catch (e, st) {
-      print("apiResponse.body faillure ::: ${e}");
-      print("apiResponse.body faillure ::: ${st}");
       return Failure(ServerError('Exception: $e'));
     }
   }
