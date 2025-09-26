@@ -19,10 +19,11 @@ class CertificatePinningInterceptor {
     ));
 
     (dio.httpClientAdapter as IOHttpClientAdapter).onHttpClientCreate = (client) {
-      client.badCertificateCallback = (X509Certificate cert, String host, int port) {
-        return _validateCertificate(cert);
-      };
-      return client;
+      return HttpClient(context: SecurityContext.defaultContext)
+        ..badCertificateCallback = (X509Certificate cert, String host, int port) {
+          // ⚡ Ici tu reçois TOUS les certificats (valides ou non)
+          return _validateCertificate(cert);
+        };
     };
 
     dio.interceptors.add(LogInterceptor(
@@ -39,12 +40,17 @@ class CertificatePinningInterceptor {
 
   bool _validateCertificate(X509Certificate cert) {
     try {
+      print('Certificate: ${cert}');
       // Extraire la clé publique du certificat
       final publicKey = _extractPublicKeyFromCertificate(cert.der);
 
       // Calculer l'empreinte
       final hash = sha256.convert(publicKey).bytes;
       final base64Hash = base64.encode(hash);
+
+      print('Certificate pin: $base64Hash');
+      print('Allowed pins: $allowedBase64Pins');
+      print('Certificate pin matches: ${allowedBase64Pins.contains(base64Hash)}');
 
       // Comparer avec les pins autorisés
       return allowedBase64Pins.contains(base64Hash);
@@ -55,6 +61,7 @@ class CertificatePinningInterceptor {
 
   Uint8List _extractPublicKeyFromCertificate(Uint8List derBytes) {
     // Parser le certificat DER
+    print('Certificate DER: ${derBytes.length} bytes');
     final asn1Parser = ASN1Parser(derBytes);
     final sequence = asn1Parser.nextObject() as ASN1Sequence;
 

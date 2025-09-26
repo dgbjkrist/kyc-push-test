@@ -3,20 +3,29 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 
-import 'certificate_pinning_interceptor.dart';
 import 'core/secure_storage/secure_storage.dart';
+import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 
 class HttpClient {
   final Dio _dio;
   final SecureStorage _storage;
 
-  HttpClient({
-    required List<String> certificatePins,
-    required SecureStorage storage,
-  }) : _dio = CertificatePinningInterceptor(
-         certificatePins,
-       ).createDioWithPinning(),
-       _storage = storage {
+  HttpClient({required List<String> certificatePins, required SecureStorage storage})
+      : _storage = storage ,_dio = Dio(BaseOptions(
+    baseUrl: 'https://kyc.xpertbot.online',
+    connectTimeout: const Duration(seconds: 30),
+    receiveTimeout: const Duration(seconds: 30),
+  )) {
+    _dio.interceptors.add(CertificatePinningInterceptor(
+      allowedSHAFingerprints: certificatePins,
+      timeout: 10,
+    ));
+
+    _dio.interceptors.add(LogInterceptor(
+      request: true,
+      responseBody: true,
+      error: true,
+    ));
     _setupDefaultHeaders();
     _loadStoredToken();
   }
