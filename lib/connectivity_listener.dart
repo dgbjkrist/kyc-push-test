@@ -6,7 +6,7 @@ class ConnectivityListener {
 
   ConnectivityListener(this.syncBloc) {
     Connectivity().onConnectivityChanged.listen((status) {
-      if (status.contains(ConnectivityResult.wifi)) {
+      if (status.contains(ConnectivityResult.wifi)) { // USE InternetAddress.lookup
         syncBloc.add(NetworkOnlineEvent());
       }
     });

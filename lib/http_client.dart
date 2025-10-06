@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:kyc/auth_interceptor.dart';
 
 import 'core/secure_storage/secure_storage.dart';
 import 'package:http_certificate_pinning/http_certificate_pinning.dart';
@@ -16,6 +18,8 @@ class HttpClient {
     connectTimeout: const Duration(seconds: 30),
     receiveTimeout: const Duration(seconds: 30),
   )) {
+    print("CertificatePins: $certificatePins");
+    _dio.interceptors.add(AuthInterceptor());
     _dio.interceptors.add(CertificatePinningInterceptor(
       allowedSHAFingerprints: certificatePins,
       timeout: 10,
@@ -30,9 +34,30 @@ class HttpClient {
     _loadStoredToken();
   }
 
+  Future<Response> get(
+      String endpoint, {
+        Map<String, dynamic>? queryParameters,
+        Map<String, String>? customHeaders,
+      }) async {
+    final options = Options(headers: customHeaders);
+    return await _dio.get(
+      endpoint,
+      queryParameters: queryParameters,
+      options: options,
+    );
+  }
+
+
   void _setupDefaultHeaders() {
     _dio.options.headers = {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    };
+  }
+
+  void _setupDefaultInterceptors() {
+    _dio.options.headers = {
+      'Content-type': 'application/json',
       'Accept': 'application/json',
     };
   }
@@ -50,19 +75,6 @@ class HttpClient {
     } else {
       _dio.options.headers.remove('Authorization');
     }
-  }
-
-  Future<Response> get(
-    String endpoint, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, String>? customHeaders,
-  }) async {
-    final options = Options(headers: customHeaders);
-    return await _dio.get(
-      endpoint,
-      queryParameters: queryParameters,
-      options: options,
-    );
   }
 
   Future<Response> post(

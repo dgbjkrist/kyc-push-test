@@ -1,8 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kyc/core/ocr/ocr_service.dart';
 import 'package:kyc/domain/usecases/get_customer_usecase.dart';
 import 'package:kyc/get_config.dart';
@@ -50,7 +48,9 @@ Future<void> initAsyncDependencies() async {
   );
   await kycLocal.init();
   sl.registerLazySingleton<KycApiClient>(() => KycApiClient(sl(), sl(), sl()));
-  sl.registerLazySingleton<KycRepository>(() => KycRepositoryImpl(sl(), kycLocal, sl(), sl()));
+  sl.registerLazySingleton<KycRepository>(
+    () => KycRepositoryImpl(sl(), kycLocal, sl(), sl()),
+  );
   sl.registerLazySingleton<CreateKycUsecase>(() => CreateKycUsecase(sl()));
   sl.registerLazySingleton<GetCustomerUsecase>(() => GetCustomerUsecase(sl()));
   sl.registerLazySingleton<SyncBloc>(() => SyncBloc(sl()));
@@ -61,10 +61,10 @@ Future<void> initAsyncDependencies() async {
 
 Future<void> setUpLocator() async {
   await GetConfig.initialize();
-  sl.registerLazySingleton<List<String>>(
-        () => GetConfig.getCertificatePins(),
-    instanceName: 'certificatePins',
-  );
+  // sl.registerLazySingleton<List<String>>(
+  //       () => GetConfig.getCertificatePins(),
+  //   instanceName: 'certificatePins',
+  // );
   sl.registerLazySingleton<Connectivity>(() => Connectivity());
   sl.registerLazySingleton<FlutterSecureStorage>(() => FlutterSecureStorage());
   sl.registerLazySingleton(() => HiveKeyManager(sl()));
@@ -72,7 +72,12 @@ Future<void> setUpLocator() async {
   sl.registerLazySingleton<OcrService>(() => OcrService(sl()));
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton<SecureStorage>(() => SecureStorage(sl()));
-  sl.registerLazySingleton<HttpClient>(() => HttpClient(certificatePins: sl<List<String>>(instanceName: 'certificatePins'), storage: sl()));
+  sl.registerLazySingleton<HttpClient>(
+    () => HttpClient(
+      certificatePins: GetConfig.getCertificatePins(),
+      storage: sl(),
+    ),
+  );
 
   sl.registerLazySingleton<ImagePickerService>(() => ImagePickerServiceImpl());
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
@@ -83,9 +88,11 @@ Future<void> setUpLocator() async {
 
   sl.registerLazySingleton<LoginUsecase>(() => LoginUsecase(sl()));
   sl.registerLazySingleton<LoginFormCubit>(() => LoginFormCubit());
-  sl.registerLazySingleton<LoginCubit>(() => LoginCubit(sl()));
+  sl.registerLazySingleton<LoginCubit>(() => LoginCubit(sl(), sl()));
   sl.registerLazySingleton<LogoutUsecase>(() => LogoutUsecase(sl()));
   sl.registerLazySingleton<LogoutCubit>(() => LogoutCubit(sl()));
 
-  sl.registerLazySingleton<ConnectivityListener>(() => ConnectivityListener(sl()));
+  sl.registerLazySingleton<ConnectivityListener>(
+    () => ConnectivityListener(sl()),
+  );
 }

@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 Widget CustomTextField({
-  bool focus = false,
   String? initialValue,
   String? labelText,
-  TextInputType? inputType,
   void Function(String)? onChanged,
   bool readonly = false,
   TextEditingController? controller,
-  List<TextInputFormatter>? formatters,
   String? Function(String?)? validator,
-  Color? borderColor,
-  String? hintText,
   isPassword = false,
   IconData? prefixIcon,
   String? errorText,
@@ -33,8 +27,6 @@ Widget CustomTextField({
       ],
     ),
     child: TextFormField(
-      autofocus: focus,
-      inputFormatters: formatters ?? [],
       controller: controller,
       readOnly: readonly,
       initialValue: initialValue,
@@ -52,7 +44,6 @@ Widget CustomTextField({
           fontSize: 16,
           fontWeight: FontWeight.w400,
         ),
-        hintText: hintText,
         errorText: errorText,
         errorStyle: TextStyle(
           color: Colors.red,

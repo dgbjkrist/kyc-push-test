@@ -2,8 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
-
 class FramePhotoKyc extends StatelessWidget {
   final String title;
   final String subtitle;

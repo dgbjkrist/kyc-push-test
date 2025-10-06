@@ -22,7 +22,6 @@ class KycManagementScreen extends StatefulWidget {
 }
 
 class _KycManagementScreenState extends State<KycManagementScreen> {
-
   @override
   void initState() {
     super.initState();
@@ -51,7 +50,10 @@ class _KycManagementScreenState extends State<KycManagementScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Déconnexion', style: TextStyle(color: Colors.red)),
+            child: const Text(
+              'Déconnexion',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -77,7 +79,7 @@ class _KycManagementScreenState extends State<KycManagementScreen> {
           centerTitle: false,
           actionsProp: [
             PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert, color: Colors.black,),
+              icon: const Icon(Icons.more_vert, color: Colors.black),
               onSelected: (value) {
                 if (value == 'logout') {
                   _showLogoutConfirmation();
@@ -119,8 +121,7 @@ class _KycListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<KycListCubit, KycListState>(
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       builder: (context, state) {
         if (state is KycListStateInitial || state is KycListStateLoading) {
           return const Center(child: CircularProgressIndicator());
@@ -136,50 +137,57 @@ class _KycListView extends StatelessWidget {
     );
   }
 
-  Widget _buildList(BuildContext context,
-      List<Customer> applications,) {
+  Widget _buildList(BuildContext context, List<Customer> applications) {
     if (applications.isEmpty) {
       return const Center(child: Text('No KYC applications found'));
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Text(
-                "Users",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+    return NotificationListener<ScrollNotification>(
+      onNotification: (notification) {
+        if (notification.metrics.maxScrollExtent ==
+            notification.metrics.pixels) {
+          // call cubit for getMore data
+        }
+        return false;
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Text(
+                  "Users",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {},
+                child: ListView.builder(
+                  itemCount: applications.length,
+                  itemBuilder: (context, index) {
+                    final application = applications[index];
+                    return CustomerItem(
+                      customer: application,
+                      onTap: () => _navigateToDetail(context, application),
+                      onDelete: application.isLocal
+                          ? () => _deleteApplication(context, application)
+                          : null,
+                    );
+                  },
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: RefreshIndicator(
-              onRefresh: () async {},
-              child: ListView.separated(
-                itemCount: applications.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final application = applications[index];
-                  return CustomerItem(
-                    customer: application,
-                    onTap: () => _navigateToDetail(context, application),
-                    onDelete: application.isLocal
-                        ? () => _deleteApplication(context, application)
-                        : null,
-                  );
-                },
-              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -187,34 +195,32 @@ class _KycListView extends StatelessWidget {
   void _navigateToDetail(BuildContext context, Customer customer) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => KycDetailScreen(customer: customer),
-      ),
+      MaterialPageRoute(builder: (_) => KycDetailScreen(customer: customer)),
     );
   }
 
   void _deleteApplication(BuildContext context, Customer customer) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text('Delete Application'),
-            content: const Text(
-                'Are you sure you want to delete this local application?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  // context.read<KycListCubit>().deleteLocalApplication(customer.id);
-                },
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Application'),
+        content: const Text(
+          'Are you sure you want to delete this local application?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // context.read<KycListCubit>().deleteLocalApplication(customer.id);
+            },
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
   }
 }

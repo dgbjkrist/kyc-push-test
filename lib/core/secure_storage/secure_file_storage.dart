@@ -27,22 +27,12 @@ class SecureFileStorage {
   Future<Uint8List> readEncryptedFile(String path) async {
     try {
       final fileData = await File(path).readAsBytes();
-      print("SecureFileStorage readEncryptedFile path: $fileData");
-      print("SecureFileStorage readEncryptedFile fileData: ${fileData.length}");
-
       final iv = IV(fileData.sublist(0, 16));
-      print("SecureFileStorage readEncryptedFile iv: ${iv}");
-
       final ciphertext = fileData.sublist(16);
-      print("SecureFileStorage readEncryptedFile ciphertext: ${ciphertext}");
-
       final encrypter = Encrypter(AES(key, mode: AESMode.cbc));
       final decrypted = encrypter.decryptBytes(Encrypted(ciphertext), iv: iv);
-
       return Uint8List.fromList(decrypted);
     } catch (e, st) {
-      print("SecureFileStorage readEncryptedFile stacktrace: $st");
-      print("SecureFileStorage readEncryptedFile error: $e");
       rethrow;
     }
   }
@@ -70,6 +60,9 @@ class SecureFileStorage {
   String? getFileExtension(Uint8List bytes) {
     String? mimeType = getMimeTypeFromBytes(bytes);
 
+    /**
+     * i could remove pdf and bin case but in order to extend
+     */
     switch (mimeType) {
       case 'image/jpeg':
         return '.jpg';
